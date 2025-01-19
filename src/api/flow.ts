@@ -30,7 +30,7 @@ export const getFlowchart = async (message: string): Promise<string> => {
         messages: [
           { 
             role: 'user', 
-            content: `i want to create a roadmap usnig flowchart on topic "${message}" , give me detailed roadmap of topics and subtopics to master it. return a json object only nothing else. The main topics as parents and other as subtopics.if user enter gibberish topics , return sarcastic topics in same json format the Json object should be in format "
+            content: `i want to create a roadmap usnig flowchart on topic "${message}" , give me detailed roadmap of topics and subtopics to master it. return a json object only nothing else. The main topics as parents and other as subtopics.if user enter gibberish topics or anything which does not make sense to you, return sarcastic topics in same json format .The Json object should be in format "
 {
   "topic 1": [
      "subtopic 1",
