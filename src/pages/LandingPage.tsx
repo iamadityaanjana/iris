@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Twitter, AlertCircle } from 'lucide-react';
-import {getFlowchart} from '../api/flow.js';
+import {getFlowchart} from '../../api/flow.js';
 
 function LandingPage() {
   const [topic, setTopic] = useState('');
@@ -25,8 +25,16 @@ function LandingPage() {
     setError(null);
     
     try {
-      const response = await getFlowchart(topic);
-      const flowchartData = JSON.parse(response);
+      
+      const response = await fetch('https://iris-server-production.up.railway.app/get-flowchart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: topic }),
+      });
+
+      const flowchartData = await response.json();
       sessionStorage.setItem('flowchartData', JSON.stringify(flowchartData));
       navigate('/flowchart');
     } catch (error) {
