@@ -9,6 +9,16 @@ function LandingPage() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const words = e.target.value.trim().split(/\s+/);
+    if (words.length <= 20) {
+      setTopic(e.target.value);
+    }
+  };
+
+  const wordCount = topic.trim().split(/\s+/).length;
+  const wordsRemaining = 20 - wordCount;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,22 +61,27 @@ function LandingPage() {
         </p>
         
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 sm:gap-2">
+        <div className="flex-1 relative">
           <input
             type="text"
             value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            onChange={handleInputChange}
             placeholder="Type any topic to generate roadmap"
             className="w-full flex-1 px-4 sm:px-6 py-3 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-800 placeholder-gray-500 font-sora"
             required
             disabled={loading}
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto px-8 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors font-sora"
-          >
-            {loading ? 'Generating...' : 'Generate'}
-          </button>
+          <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-sm ${wordsRemaining <= 5 ? 'text-red-500' : 'text-gray-500'}`}>
+                {wordsRemaining} words left
+              </span>
+              </div>
+              <button
+              type="submit"
+              disabled={loading || wordCount === 0}
+              className={`w-full sm:w-auto px-8 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors font-sora ${(loading || wordCount === 0) ? 'opacity-75 cursor-not-allowed' : ''}`}
+            >
+              {loading ? 'Generating...' : 'Generate'}
+            </button>
           {error && (
             <div className="flex items-center justify-center gap-2 text-red-400 mt-2 font-sora">
               <AlertCircle size={16} />
