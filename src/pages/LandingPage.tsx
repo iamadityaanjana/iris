@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Twitter, AlertCircle } from 'lucide-react';
-import {getFlowchart} from '../../api/flow.js';
+
 
 function LandingPage() {
   const [topic, setTopic] = useState('');
