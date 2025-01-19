@@ -8,6 +8,8 @@ type FlowchartData = {
   [key: string]: string[];
 };
 
+
+
 function FlowchartPage() {
   const [flowchartData, setFlowchartData] = useState<FlowchartData | null>(null);
   const navigate = useNavigate();
