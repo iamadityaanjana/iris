@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Twitter } from 'lucide-react';
-
+import { Twitter, AlertCircle } from 'lucide-react';
+import {getFlowchart} from '../api/flow.js';
 
 function LandingPage() {
   const [topic, setTopic] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
     
-    
-    const Response = {
-    };
-
-    // Store the data in sessionStorage
-    sessionStorage.setItem('flowchartData', JSON.stringify(Response));
-    navigate('/flowchart');
+    try {
+      const response = await getFlowchart(topic);
+      const flowchartData = JSON.parse(response);
+      sessionStorage.setItem('flowchartData', JSON.stringify(flowchartData));
+      navigate('/flowchart');
+    } catch (error) {
+      console.error('Error generating flowchart:', error);
+      setError('Failed to generate the roadmap. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,13 +58,21 @@ function LandingPage() {
             placeholder="Type any topic to generate roadmap"
             className="w-full flex-1 px-4 sm:px-6 py-3 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-gray-800 placeholder-gray-500 font-sora"
             required
+            disabled={loading}
           />
           <button
             type="submit"
+            disabled={loading}
             className="w-full sm:w-auto px-8 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors font-sora"
           >
-            Generate
+            {loading ? 'Generating...' : 'Generate'}
           </button>
+          {error && (
+            <div className="flex items-center justify-center gap-2 text-red-400 mt-2 font-sora">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+          )}
         </form>
       </div>
 
