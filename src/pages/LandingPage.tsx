@@ -61,6 +61,7 @@ function LandingPage() {
         </p>
         
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 sm:gap-2">
+          
         <div className="flex-1 relative">
           <input
             type="text"
@@ -71,9 +72,7 @@ function LandingPage() {
             required
             disabled={loading}
           />
-          <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-sm ${wordsRemaining <= 5 ? 'text-red-500' : 'text-gray-500'}`}>
-                {wordsRemaining} words left
-              </span>
+          
               </div>
               <button
               type="submit"
@@ -82,6 +81,7 @@ function LandingPage() {
             >
               {loading ? 'Generating...' : 'Generate'}
             </button>
+            
           {error && (
             <div className="flex items-center justify-center gap-2 text-red-400 mt-2 font-sora">
               <AlertCircle size={16} />
@@ -89,8 +89,11 @@ function LandingPage() {
             </div>
           )}
         </form>
+        
       </div>
-
+      <span className={` p-4 ${wordsRemaining <= 5 ? 'text-red-500' : 'text-gray-500'}`}>
+                {wordsRemaining} words left
+              </span>
       <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 text-black/80 font-sora">
         <a
           href="https://x.com/iamAdityaAnjana"
