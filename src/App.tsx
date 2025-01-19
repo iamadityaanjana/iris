@@ -5,11 +5,13 @@ import FlowchartPage from './pages/FlowchartPage';
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/flowchart" element={<FlowchartPage />} />
-      <Analytics />
     </Routes>
+    <Analytics />
+    </>
   );
 }
 
