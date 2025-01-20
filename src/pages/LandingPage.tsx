@@ -36,6 +36,7 @@ function LandingPage() {
 
       const flowchartData = await response.json();
       sessionStorage.setItem('flowchartData', JSON.stringify(flowchartData));
+      sessionStorage.setItem('topic',JSON.stringify(topic));
       navigate('/flowchart');
     } catch (error) {
       console.error('Error generating flowchart:', error);
