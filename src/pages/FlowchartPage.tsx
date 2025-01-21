@@ -41,6 +41,7 @@ function FlowchartPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          topic:sessionStorage.getItem('topic'),
           id,
           data: flowchartData,
         }),
@@ -81,7 +82,7 @@ function FlowchartPage() {
           if (response.ok) {
             const data = await response.json();
             setFlowchartData(data.data);
-            sessionStorage.setItem('topic',data.topic)
+            sessionStorage.setItem('topic',JSON.stringify(data.topic))
             return;
           }
         } catch (error) {
