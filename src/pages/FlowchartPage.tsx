@@ -1,7 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Download, ArrowLeft, X, Loader2, Link as LinkIcon } from 'lucide-react';
+import  { useEffect, useState, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ChevronRight, Download, ArrowLeft, X, Loader2, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { QRCodeSVG } from 'qrcode.react';
+import { nanoid } from 'nanoid';
+
+
 
 type FlowchartData = {
   [key: string]: string[];
@@ -16,24 +20,90 @@ type SubtopicDetails = {
 function FlowchartPage() {
   const [flowchartData, setFlowchartData] = useState<FlowchartData | null>(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState<SubtopicDetails | null>(null);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string>('');
+  const navigate = useNavigate();
+  const location = useLocation();
   const flowchartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const data = sessionStorage.getItem('flowchartData');
-    if (!data) {
-      navigate('/');
-      return;
+
+  const handleShare = async () => {
+    if (!flowchartData) return;
+
+    try {
+      setLoading(true);
+      const id = nanoid(10);
+      
+      const response = await fetch('iris-server-production.up.railway.app/api/flowcharts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          data: flowchartData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save flowchart');
+      }
+
+      const shareUrl = `${window.location.origin}/flowchart?id=${id}`;
+      setShareUrl(shareUrl);
+      setShareModalOpen(true);
+    } catch (error) {
+      console.error('Error sharing flowchart:', error);
+      alert('Failed to share flowchart. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    setFlowchartData(JSON.parse(data));
-  }, [navigate]);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert('Link copied to clipboard!');
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+    }
+  };
+  
+  useEffect(() => {
+    const loadFlowchart = async () => {
+      const searchParams = new URLSearchParams(location.search);
+      const id = searchParams.get('id');
+
+      if (id) {
+        try {
+          const response = await fetch(`iris-server-production.up.railway.app/api/flowcharts/${id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setFlowchartData(data.data);
+            return;
+          }
+        } catch (error) {
+          console.error('Error loading shared flowchart:', error);
+        }
+      }
+
+      const data = sessionStorage.getItem('flowchartData');
+      if (!data) {
+        navigate('/');
+        return;
+      }
+      setFlowchartData(JSON.parse(data));
+    };
+
+    loadFlowchart();
+  }, [navigate, location]);
 
   const getSubtopicDetails = async (topic: string, subtopic: string) => {
     try {
       
       const Maintopic = sessionStorage.getItem('topic') ;
-      const Responses = await fetch('https://iris-server-production.up.railway.app/get-subtopics', {
+      const Responses = await fetch('iris-server-production.up.railway.app/get-subtopics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,6 +190,38 @@ function FlowchartPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* Share Modal */}
+      {shareModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Share Flowchart</h3>
+            <div className="flex justify-center mb-4">
+              <QRCodeSVG value={shareUrl} size={200} />
+            </div>
+            <div className="flex items-center gap-2 mb-4">
+              <input
+                type="text"
+                value={shareUrl}
+                readOnly
+                className="flex-1 p-2 border rounded"
+              />
+              <button
+                onClick={copyToClipboard}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Copy
+              </button>
+            </div>
+            <button
+              onClick={() => setShareModalOpen(false)}
+              className="w-full px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sliding Panel */}
       <div 
         className={`fixed right-0 top-0 h-full w-80 sm:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
@@ -171,13 +273,23 @@ function FlowchartPage() {
               </button>
             </div>
             
-            <button
-              onClick={downloadAsPNG}
-              className="flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-sm sm:text-base font-sora"
-            >
-              <Download size={18} />
-              <span className="hidden sm:inline">Download</span> PNG
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleShare}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-sm sm:text-base font-sora"
+                disabled={loading}
+              >
+                <Share2 size={18} />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+              <button
+                onClick={downloadAsPNG}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-sm sm:text-base font-sora"
+              >
+                <Download size={18} />
+                <span className="hidden sm:inline">Download</span> PNG
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 overflow-x-auto">
