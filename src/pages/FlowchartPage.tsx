@@ -81,7 +81,7 @@ function FlowchartPage() {
           if (response.ok) {
             const data = await response.json();
             setFlowchartData(data.data);
-            sessionStorage.setItem('topic',JSON.stringify(data.topic))
+            sessionStorage.setItem('topic',data.topic)
             return;
           }
         } catch (error) {
