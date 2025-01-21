@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import FlowchartPage from './pages/FlowchartPage';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+
+
 function App() {
   return (
     <>
