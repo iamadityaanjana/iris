@@ -26,7 +26,7 @@ function LandingPage() {
     
     try {
       
-      const response = await fetch('https://iris-server-production.up.railway.app/get-flowchart', {
+      const response = await fetch('http://localhost:3000/get-flowchart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

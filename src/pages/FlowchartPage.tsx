@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, Download, ArrowLeft, X } from 'lucide-react';
+import { ChevronRight, Download, ArrowLeft, X, Loader2, Link as LinkIcon } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 type FlowchartData = {
@@ -17,6 +17,7 @@ function FlowchartPage() {
   const [flowchartData, setFlowchartData] = useState<FlowchartData | null>(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState<SubtopicDetails | null>(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const flowchartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,13 +32,13 @@ function FlowchartPage() {
   const getSubtopicDetails = async (topic: string, subtopic: string) => {
     try {
       
-      
-      const Responses = await fetch('https://iris-server-production.up.railway.app/get-subtopics', {
+      const Maintopic = sessionStorage.getItem('topic') ;
+      const Responses = await fetch('http://localhost:3000/get-subtopics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: topic, sub: subtopic }),
+        body: JSON.stringify({ message: topic, sub: subtopic , main: Maintopic}),
       });
 
       const responseData = await Responses.text();
@@ -60,9 +61,15 @@ function FlowchartPage() {
   };
 
   const handleSubtopicClick = async (topic: string, subtopic: string) => {
-      const details =  getSubtopicDetails(topic, subtopic);
-      setSelectedSubtopic(await details);
-    };
+    setLoading(true);
+    try {
+      const details = await getSubtopicDetails(topic, subtopic);
+      // const details = getSubtopicDetails(topic, subtopic);
+      setSelectedSubtopic(details);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const downloadAsPNG = async () => {
     if (!flowchartRef.current) return;
@@ -81,17 +88,50 @@ function FlowchartPage() {
     link.click();
   };
 
+  const renderContent = (content: string) => {
+    return content.split('\n').map((line, index) => {
+      if (line.includes('<a href=')) {
+        return (
+          <a
+            key={index}
+            href={line.match(/href="([^"]*)"/)![1]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors mb-2"
+          >
+            <p className="text-sm font-medium text-gray-900 font-sora">
+              {line.match(/>([^<]*)<\/a>/)![1]}
+            </p>
+            <p className="text-xs text-gray-500 mt-1 truncate font-sora">
+              {line.match(/href="([^"]*)"/)![1]}
+            </p>
+          </a>
+        );
+      }
+      return (
+        <div key={index} className="whitespace-pre-wrap font-sora text-sm text-gray-700">
+          {line}
+        </div>
+      );
+    });
+  };
+
   if (!flowchartData) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      {/* Sliding Panel - Moved to right side */}
+      {/* Sliding Panel */}
       <div 
         className={`fixed right-0 top-0 h-full w-80 sm:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
-          selectedSubtopic ? 'translate-x-0' : 'translate-x-full'
+          selectedSubtopic || loading ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        {selectedSubtopic && (
+        {loading ? (
+          <div className="h-full flex flex-col items-center justify-center">
+            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+            <p className="mt-4 text-gray-600 font-sora">Loading details...</p>
+          </div>
+        ) : selectedSubtopic && (
           <div className="h-full flex flex-col">
             <div className="p-6 border-b">
               <div className="flex justify-between items-start">
@@ -109,7 +149,7 @@ function FlowchartPage() {
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap font-sora text-sm text-gray-700">{selectedSubtopic.content}</pre>
+                {renderContent(selectedSubtopic.content)}
               </div>
             </div>
           </div>
