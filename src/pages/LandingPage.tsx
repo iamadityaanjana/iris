@@ -26,7 +26,7 @@ function LandingPage() {
     
     try {
       
-      const response = await fetch('https://iris-server-production.up.railway.app/get-flowchart', {
+      const response = await fetch('https://obscure-river-35675-a72663b1ec8d.herokuapp.com/get-flowchart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

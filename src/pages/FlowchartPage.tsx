@@ -35,7 +35,7 @@ function FlowchartPage() {
       setLoading(true);
       const id = nanoid(10);
       
-      const response = await fetch('https://iris-server-production.up.railway.app/api/flowcharts', {
+      const response = await fetch('https://obscure-river-35675-a72663b1ec8d.herokuapp.com/api/flowcharts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ function FlowchartPage() {
 
       if (id) {
         try {
-          const response = await fetch(`https://iris-server-production.up.railway.app/api/flowcharts/${id}`);
+          const response = await fetch(`https://obscure-river-35675-a72663b1ec8d.herokuapp.com/api/flowcharts/${id}`);
           if (response.ok) {
             const data = await response.json();
             setFlowchartData(data.data);
@@ -105,7 +105,7 @@ function FlowchartPage() {
     try {
       
       const Maintopic = sessionStorage.getItem('topic') ;
-      const Responses = await fetch('https://iris-server-production.up.railway.app/get-subtopics', {
+      const Responses = await fetch('https://obscure-river-35675-a72663b1ec8d.herokuapp.com/get-subtopics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
