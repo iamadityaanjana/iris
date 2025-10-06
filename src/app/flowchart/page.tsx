@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronRight, Download, ArrowLeft, X, Loader2, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { QRCodeSVG } from 'qrcode.react';
 import { nanoid } from 'nanoid';
+
+export const dynamic = 'force-dynamic';
 
 type FlowchartData = {
   [key: string]: string[];
@@ -17,7 +19,7 @@ type SubtopicDetails = {
   content: string;
 };
 
-export default function FlowchartPage() {
+function FlowchartContent() {
   const [flowchartData, setFlowchartData] = useState<FlowchartData | null>(null);
   const [selectedSubtopic, setSelectedSubtopic] = useState<SubtopicDetails | null>(null);
   const [loading, setLoading] = useState(false);
@@ -342,5 +344,13 @@ export default function FlowchartPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FlowchartPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FlowchartContent />
+    </Suspense>
   );
 }
