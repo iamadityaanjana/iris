@@ -27,7 +27,7 @@ const getFlowchart = async (message: string) => {
     try {
       const response = await client.chat.completions.create({
         model: 'openai/gpt-4.1',
-        max_tokens: 4999,
+        max_tokens: 2000,
         messages: [
           { 
             role: 'user', 

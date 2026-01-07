@@ -301,7 +301,11 @@ function FlowchartContent() {
               <div className="flex flex-col items-center space-y-12 relative">
                 <div className="absolute top-0 bottom-0 w-1 bg-indigo-500 left-1/2 transform -translate-x-1/2" />
                 
-                {Object.entries(flowchartData).map(([topic, subtopics]) => (
+                {Object.entries(flowchartData).map(([topic, subtopics]) => {
+                  // Ensure subtopics is an array
+                  const subtopicsArray = Array.isArray(subtopics) ? subtopics : [];
+                  
+                  return (
                   <div key={topic} className="w-full">
                     <div className="relative">
                       <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-300 px-3 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md border-2 border-yellow-400 z-10">
@@ -309,7 +313,7 @@ function FlowchartContent() {
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:gap-8 pt-12">
                         <div className="space-y-2 sm:space-y-4">
-                          {subtopics.slice(0, Math.ceil(subtopics.length / 2)).map((subtopic) => (
+                          {subtopicsArray.slice(0, Math.ceil(subtopicsArray.length / 2)).map((subtopic) => (
                             <div key={subtopic} className="flex items-center justify-end">
                               <button
                                 onClick={() => handleSubtopicClick(topic, subtopic)}
@@ -322,7 +326,7 @@ function FlowchartContent() {
                           ))}
                         </div>
                         <div className="space-y-2 sm:space-y-4">
-                          {subtopics.slice(Math.ceil(subtopics.length / 2)).map((subtopic) => (
+                          {subtopicsArray.slice(Math.ceil(subtopicsArray.length / 2)).map((subtopic) => (
                             <div key={subtopic} className="flex items-center">
                               <ChevronRight className="text-blue-400 mr-2" size={14} />
                               <button
@@ -337,7 +341,8 @@ function FlowchartContent() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
