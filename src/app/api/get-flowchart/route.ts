@@ -26,7 +26,7 @@ const getFlowchart = async (message: string) => {
   while (attempts < MAX_RETRIES) {
     try {
       const response = await client.chat.completions.create({
-        model: 'openai/gpt-oss-120b:free',
+        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
         max_tokens: 4000,
         messages: [
           { 
